@@ -1,4 +1,6 @@
 htpwdScan
+
+在杰哥的基础上,迁移到了Python3, 支持杰哥.
 ====
 
 **htpwdScan** 是一个简单的HTTP暴力破解、撞库攻击脚本. 它的特性：
