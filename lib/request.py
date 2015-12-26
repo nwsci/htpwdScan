@@ -10,9 +10,9 @@ import random
 import re
 import string
 import hashlib
-import urlparse
-import urllib
-import httplib
+import urllib.parse
+import urllib.request, urllib.parse, urllib.error
+import http.client
 import time
 from lib.encodings import system_encode
 
@@ -80,10 +80,11 @@ def do_request(self):
         fake_session_id(self, local_headers)
 
         data = self.args.query
-        params_dict = dict(urlparse.parse_qsl(data))
+        params_dict = dict(urllib.parse.parse_qsl(data))
 
         if self.args.basic:
-            local_headers['Authorization'] = 'Basic ' + base64.b64encode(params)
+            encoded = base64.b64encode(params.encode('utf-8'))
+            local_headers['Authorization'] = 'Basic ' + encoded.decode('utf-8')
         elif self.args.checkproxy:
             pass
         else:
@@ -107,10 +108,10 @@ def do_request(self):
                 elif self.args.sha1.count(p) > 0:
                     params_dict[p] = hashlib.sha1(params_dict[p]).hexdigest()
 
-            data = urllib.urlencode(params_dict)
-            data_print = dict((k,v) for k,v in params_dict.iteritems() if k in self.selected_params)
-            data_print = urllib.urlencode(data_print)
-            data_print = urllib.unquote(data_print)
+            data = urllib.parse.urlencode(params_dict)
+            data_print = dict((k,v) for k,v in params_dict.items() if k in self.selected_params)
+            data_print = urllib.parse.urlencode(data_print)
+            data_print = urllib.parse.unquote(data_print)
 
         if not self.args.nov and not self.args.checkproxy:
             self.print_s('[.]Scan %s' % (params if self.args.basic else data_print))
@@ -124,7 +125,7 @@ def do_request(self):
                     if self.args.checkproxy:
                         self.print_s('[.]Check proxy server %s' % cur_proxy)
 
-                    conn = httplib.HTTPConnection(cur_proxy, timeout=30)
+                    conn = http.client.HTTPConnection(cur_proxy, timeout=30)
                     if self.args.debug: conn.set_debuglevel(1)
 
                     if self.args.get:
@@ -134,7 +135,7 @@ def do_request(self):
                         conn.request(method='POST', url='%s://%s/%s' % (self.args.scm, self.args.netloc, self.args.path),
                                      body=data, headers=local_headers)
                 else:    # Proxy off
-                    conn_func = httplib.HTTPSConnection  if self.args.scm == 'https' else httplib.HTTPConnection
+                    conn_func = http.client.HTTPSConnection  if self.args.scm == 'https' else http.client.HTTPConnection
                     conn = conn_func(self.args.netloc, timeout=30)
                     if self.args.debug: conn.set_debuglevel(1)
 
@@ -154,10 +155,10 @@ def do_request(self):
 
                 if self.args.debug:
                     self.lock.acquire()
-                    print '*' * self.console_width
-                    print '[Response headers and response text]\n'
-                    print res_headers + '\n' + system_encode(html_doc)
-                    print '\n' + '*' * self.console_width
+                    print('*' * self.console_width)
+                    print('[Response headers and response text]\n')
+                    print(res_headers + '\n' + system_encode(html_doc))
+                    print('\n' + '*' * self.console_width)
                     self.lock.release()
 
                 if self.args.rtxt and html_doc.find(self.args.rtxt) >= 0:
@@ -185,7 +186,7 @@ def do_request(self):
                         found_suc_tag = True
                 suc_tag_matched = suc_tag_matched.strip()
 
-                data = urllib.unquote(data)
+                data = urllib.parse.unquote(data)
                 cracked_msg = ''
                 if (not self.args.no302 and response.status == 302):
                     cracked_msg = '[+]%s \t\t{302 redirect}' % data
@@ -213,7 +214,12 @@ def do_request(self):
                         with open('001.proxy.servers.txt', 'a') as outFile:
                             outFile.write(cur_proxy + '\n')
                     else:
-                        self.print_s(system_encode('[+OK]%s' % data_print), color_red=True)
+                        msg =''
+                        if self.args.basic: 
+                            msg=self.args.basic
+                        else:
+                            msg =data_print
+                        self.print_s(system_encode('[+OK]%s' % msg), color_red=True)
                         with open(self.args.o, 'a') as outFile:
                             outFile.write(cracked_msg + '\n')
 
@@ -223,7 +229,7 @@ def do_request(self):
 
                 break
 
-            except Exception, e:
+            except Exception as e:
                 err_count += 1
                 if not self.args.checkproxy: self.print_s('[Exception in do_request] %s' % e)
                 try:

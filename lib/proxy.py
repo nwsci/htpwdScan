@@ -40,9 +40,9 @@ def load_proxy(self):
 
     if self.args.debug and self.proxy_list:
         self.lock.acquire()
-        print '[Proxy servers loaded]\n'
-        print self.proxy_list
-        print '\n' + '*' * self.console_width
+        print('[Proxy servers loaded]\n')
+        print(self.proxy_list)
+        print('\n' + '*' * self.console_width)
         self.lock.release()
 
     if self.args.checkproxy and not self.proxy_list:

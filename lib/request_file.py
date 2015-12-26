@@ -3,7 +3,7 @@
 # Parse HTTP request from file or from command line
 #
 
-import urlparse
+import urllib.parse
 import re
 import os
 
@@ -12,7 +12,7 @@ def parse_command_line_url(self):
     if not self.args.u.lower().startswith('http'):
         self.args.u = 'http://%s' % self.args.u
     (self.args.scm, self.args.netloc, self.args.path, _params, self.args.query, _fragment) = \
-               urlparse.urlparse(self.args.u, 'http')
+               urllib.parse.urlparse(self.args.u, 'http')
     parse_host_port(self)
 
 
@@ -55,7 +55,7 @@ def parse_request(self):
         self.args.path = self.args.path[self.args.path.find('/'):].strip()
 
     if self.args.get:
-        (_, _, self.args.path, _, self.args.query, _) = urlparse.urlparse(self.args.path)
+        (_, _, self.args.path, _, self.args.query, _) = urllib.parse.urlparse(self.args.path)
     else:
         for i in range(len(lines)-1 , 0, -1):
             if lines[i].strip():

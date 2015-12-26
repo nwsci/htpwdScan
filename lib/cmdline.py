@@ -108,10 +108,10 @@ def parse_args(self):
     if self.args.debug:
         self.args.t = 1    # thread set to 1 in debug mode
         self.lock.acquire()
-        print '*' * self.console_width
-        print '[Parsed Arguments]\n'
+        print('*' * self.console_width)
+        print('[Parsed Arguments]\n')
         pprint.pprint(self.args.__dict__)
-        print '\n' + '*' * self.console_width
+        print('\n' + '*' * self.console_width)
         self.lock.release()
 
     self.request_thread_count = self.args.t

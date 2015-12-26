@@ -41,7 +41,7 @@ class Scanner():
 
     def print_s(self, s, color_red=False):
         self.lock.acquire()
-        print Fore.MAGENTA + s if color_red else Fore.RESET + s
+        print(Fore.MAGENTA + s if color_red else Fore.RESET + s)
         self.lock.release()
 
     def now_time(self):
@@ -60,7 +60,7 @@ class Scanner():
                 time.sleep(0.1)
             s.print_s('_' * s.console_width + '\nTask finished at %s. Cost %.2f seconds' %
                       (self.now_time(), time.time() - s.start_time) )
-        except KeyboardInterrupt, e:
+        except KeyboardInterrupt as e:
             s.STOP_ME = True
             time.sleep(1.0)
             s.print_s('_' * s.console_width + '\n[KeyboardInterrupt] \nTask aborted at %s, cost %.2f seconds' %

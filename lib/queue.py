@@ -5,7 +5,7 @@
 #
 
 import time
-import Queue
+import queue
 import os
 import re
 
@@ -14,9 +14,9 @@ def gen_queue_basic_auth(self):
     f_user = open(self.args.basic[0], 'r')
     f_pass = open(self.args.basic[1], 'r')
 
-    for str_user in f_user.xreadlines():
+    for str_user in f_user:
         f_pass.seek(0)    # Very important
-        for str_pass in f_pass.xreadlines():
+        for str_pass in f_pass:
             auth_key = '%s:%s' % (str_user.strip(), str_pass.strip())
             while self.queue.qsize() >= self.args.t * 2 and not self.STOP_ME:
                 time.sleep(0.001)
@@ -42,7 +42,7 @@ def gen_queue_database(self):
 
     obj_re = re.compile(self.args.regex)
     f_database = open(database_file, 'r')
-    for str_line in f_database.xreadlines():
+    for str_line in f_database:
         if self.STOP_ME:
             break
 
@@ -114,7 +114,7 @@ def gen_python_code(self):
 
 def gen_queue(self):
 
-    self.queue = Queue.Queue()
+    self.queue = queue.Queue()
     self.args.md5 = self.args.md5_16 = self.args.sha1 = []
     self.selected_params = {}
     self.selected_params_keys = []
@@ -139,8 +139,8 @@ def gen_queue(self):
         str_code = gen_python_code(self)
         self.lock.acquire()
         if self.args.debug:
-            print '[Python code generated]\n'
-            print str_code
-            print '\n' + '*' * self.console_width
+            print('[Python code generated]\n')
+            print(str_code)
+            print('\n' + '*' * self.console_width)
         self.lock.release()
         exec(str_code)
